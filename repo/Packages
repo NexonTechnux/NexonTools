@@ -1,0 +1,15 @@
+Package: ipahelper
+Version: 1.0
+Architecture: iphoneos-arm
+Maintainer: Nexon
+Depends: ldid, unzip, bash
+Filename: debs/ipahelper.deb
+Size: 936
+MD5sum: b7040190ce2c2c8a25583ea73c71c2a4
+SHA1: 17ed52012b5c9738bafd43565f3ff825b00d7caa
+SHA256: e8d7b1f5cf6d0c595a12f6d8e1acfdd87ebd1e7c577034206649a03fe536e2cb
+Section: Utilities
+Description: Utility per installare IPA facilmente da terminale
+Author: Nexon
+Name: IPA Helper
+
