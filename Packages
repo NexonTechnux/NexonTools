@@ -3,7 +3,7 @@ Version: 1.0
 Architecture: iphoneos-arm
 Maintainer: Nexon
 Depends: ldid, unzip, bash
-Filename: debs/ipahelper.deb
+Filename: ./ipahelper.deb
 Size: 936
 MD5sum: b7040190ce2c2c8a25583ea73c71c2a4
 SHA1: 17ed52012b5c9738bafd43565f3ff825b00d7caa
