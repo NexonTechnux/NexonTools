@@ -4,7 +4,7 @@ Architecture: iphoneos-arm
 Maintainer: Semir
 Installed-Size: 80
 Depends: mobilesubstrate, unzip
-Filename: debs/com.nexontech.fluxmanager_0.0.1-4+debug_iphoneos-arm.deb
+Filename: ./debs/com.nexontech.fluxmanager_0.0.1-4+debug_iphoneos-arm.deb
 Size: 13432
 MD5sum: 460615619296c06160d2b07a8296ec4a
 SHA1: 05042ace9cb7118d30c93b59282624008888158a
@@ -13,4 +13,20 @@ Section: Utilities
 Description: Un file manager nativo per iOS 6 con supporto IPA e ZIP.
 Author: Semir
 Name: FluxManager
+
+Package: com.nexontech.sslupatch
+Version: 1.0.0-1+debug
+Architecture: iphoneos-arm
+Maintainer: Semir
+Installed-Size: 120
+Depends: mobilesubstrate
+Filename: ./debs/com.nexontech.sslupatch_1.0.0-1+debug_iphoneos-arm.deb
+Size: 36084
+MD5sum: dbba5b812a376d50aa2a18007d403d6c
+SHA1: 2200deb7b2043b0e52b6c260e7bb0d1fa5d3a246
+SHA256: b712b7993e2cc2519fed27bace551198d578378a4b69ba79b29637b409398443
+Section: Tweaks
+Description: Aggiorna i certificati SSL/TLS su iOS legacy tramite profilo automatico.
+Author: Semir
+Name: SSLUpatch
 
