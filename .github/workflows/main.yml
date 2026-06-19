@@ -1,0 +1,44 @@
+name: Aggiorna Repo Cydia
+
+on:
+  push:
+    paths:
+      - 'debs/**' # Si attiva solo se aggiungi o modifichi file nella cartella debs
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Controlla il codice della repository
+      uses: actions/checkout@v4
+
+    - name: Installa dpkg-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y dpkg-dev
+
+    - name: Genera i file Packages
+      run: |
+        # Genera il file Packages principale
+        dpkg-scanpackages -m ./debs /dev/null > Packages
+        
+        # Crea la versione compressa .gz
+        gzip -c9 Packages > Packages.gz
+        
+        # Crea la versione compressa .bz2
+        bzip2 -c9 Packages > Packages.bz2
+
+    - name: Committa e pusha i file aggiornati
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        # Aggiunge i file dei pacchetti modificati
+        git add Packages Packages.gz Packages.bz2
+        
+        # Esegue il commit solo se ci sono reali cambiamenti
+        git diff-index --quiet HEAD || git commit -m "Automatizzato: Aggiornati indici dei pacchetti (Cydia)"
+        
+        # Pusha le modifiche sulla repo
+        git push origin main
