@@ -3,7 +3,7 @@ Version: 0.0.1-2+debug
 Architecture: iphoneos-arm
 Maintainer: Semir
 Installed-Size: 80
-Depends: mobilesubstrate, unzip, gsc.bydia
+Depends: mobilesubstrate, unzip, gsc.cydia
 Filename: debs/com.nexontech.fluxmanager_0.0.1-2+debug_iphoneos-arm.deb
 Size: 13450
 MD5sum: 4ae970e13fdbcaf4f7cb27e2f29f42ac
