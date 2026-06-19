@@ -1,14 +1,14 @@
 Package: com.nexontech.fluxmanager
-Version: 0.0.1-3+debug
+Version: 0.0.1-4+debug
 Architecture: iphoneos-arm
 Maintainer: Semir
 Installed-Size: 80
-Depends: mobilesubstrate, unzip, gsc.cydia
-Filename: debs/com.nexontech.fluxmanager_0.0.1-3+debug_iphoneos-arm.deb
-Size: 13446
-MD5sum: 028136700690c94b42b42ae08adbab8f
-SHA1: 30bda21c45e3cb167121ea92f62306dd103e7069
-SHA256: 958d43d91f763b85a05cd1b7f7f45a065e573a5247652ae7130d13599338620b
+Depends: mobilesubstrate, unzip
+Filename: debs/com.nexontech.fluxmanager_0.0.1-4+debug_iphoneos-arm.deb
+Size: 13432
+MD5sum: 460615619296c06160d2b07a8296ec4a
+SHA1: 05042ace9cb7118d30c93b59282624008888158a
+SHA256: 8981f98d5dce20c81b9c8feceadf457858d7342d8ada7746d2277ff491cc3d3a
 Section: Utilities
 Description: Un file manager nativo per iOS 6 con supporto IPA e ZIP.
 Author: Semir
