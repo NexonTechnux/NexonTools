@@ -1,139 +1,112 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
-<meta charset="UTF-8">
-<title>CPU Stress Test (1 minuto)</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GPU Stress Test - iPhone 4</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #111;
+            overflow: hidden;
+            color: #fff;
+            font-family: sans-serif;
+        }
 
-<style>
-body{
-    font-family:Arial;
-    background:#222;
-    color:white;
-    text-align:center;
-    margin-top:40px;
-}
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            pointer-events: none;
+        }
 
-button{
-    font-size:22px;
-    padding:15px 40px;
-}
+        /* La pallina: un incubo per le vecchie GPU a causa di box-shadow e gradienti */
+        .ball {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ff0055, #770022);
+            
+            /* Il vero carico: le ombre pesanti forzano la GPU al "pixel blending" continuo */
+            box-shadow: 0 0 15px 5px rgba(255, 0, 85, 0.8);
+            opacity: 0.9;
 
-#progress{
-    width:300px;
-    height:25px;
-    border:1px solid white;
-    margin:20px auto;
-}
-
-#bar{
-    width:0%;
-    height:100%;
-    background:#00ff00;
-}
-
-#timer{
-    font-size:28px;
-}
-
-#score{
-    font-size:40px;
-    margin-top:20px;
-}
-</style>
+            /* Forza l'accelerazione hardware (sperando che l'A4 la regga senza crashare) */
+            -webkit-transform: translate3d(0,0,0);
+            transform: translate3d(0,0,0);
+        }
+    </style>
 </head>
-
 <body>
 
-<h1>CPU Stress Test</h1>
+    <div id="info">
+        <strong>GPU Stress Test</strong><br>
+        Palline: <span id="count">0</span><br>
+        <small>iPhone 4 Hardware Killer</small>
+    </div>
 
-<button onclick="startTest()">Avvia Test (60 secondi)</button>
+    <script>
+        const BALL_COUNT = 150; // Numero di palline. Se l'iPhone 4 crasha, abbassa a 80.
+        const balls = [];
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
 
-<div id="timer">60</div>
+        // Inizializza il contatore visivo
+        document.getElementById('count').innerText = BALL_COUNT;
 
-<div id="progress">
-    <div id="bar"></div>
-</div>
+        // Creazione delle palline nel DOM
+        for (let i = 0; i < BALL_COUNT; i++) {
+            const el = document.createElement('div');
+            el.className = 'ball';
+            document.body.appendChild(el);
 
-<div id="score"></div>
+            balls.push({
+                element: el,
+                x: Math.random() * (screenWidth - 30),
+                y: Math.random() * (screenHeight - 30),
+                vx: (Math.random() - 0.5) * 8, // Velocità X
+                vy: (Math.random() - 0.5) * 8  // Velocità Y
+            });
+        }
 
-<script>
+        // Loop di animazione (usa requestAnimationFrame, supportato da iOS 6+)
+        function update() {
+            for (let i = 0; i < BALL_COUNT; i++) {
+                const b = balls[i];
 
-var operations = 0;
-var endTime = 0;
+                // Aggiorna posizione
+                b.x += b.vx;
+                b.y += b.vy;
 
-function heavyWork(){
+                // Rimbalzo pareti laterali
+                if (b.x <= 0 || b.x >= screenWidth - 30) {
+                    b.vx *= -1;
+                    b.x = b.x <= 0 ? 0 : screenWidth - 30;
+                }
 
-    var x = Math.random();
+                // Rimbalzo soffitto/pavimento
+                if (b.y <= 0 || b.y >= screenHeight - 30) {
+                    b.vy *= -1;
+                    b.y = b.y <= 0 ? 0 : screenHeight - 30;
+                }
 
-    for(var i=0;i<5000;i++){
-        x=Math.sin(x);
-        x=Math.cos(x);
-        x=Math.sqrt(Math.abs(x));
-        x=Math.tan(x);
-    }
+                // Applica il movimento usando translate3d per toccare la GPU
+                b.element.style.webkitTransform = `translate3d(${b.x}px, ${b.y}px, 0)`;
+                b.element.style.transform = `translate3d(${b.x}px, ${b.y}px, 0)`;
+            }
 
-    operations++;
-}
+            requestAnimationFrame(update);
+        }
 
-function loop(){
-
-    if(new Date().getTime()>=endTime){
-
-        finish();
-        return;
-    }
-
-    heavyWork();
-
-    var remain=Math.ceil((endTime-new Date().getTime())/1000);
-
-    document.getElementById("timer").innerHTML=remain;
-
-    var done=100-((endTime-new Date().getTime())/600);
-
-    if(done<0) done=0;
-    if(done>100) done=100;
-
-    document.getElementById("bar").style.width=done+"%";
-
-    setTimeout(loop,0);
-}
-
-function finish(){
-
-    var score=1;
-
-    if(operations>1000) score=2;
-    if(operations>2000) score=3;
-    if(operations>4000) score=4;
-    if(operations>7000) score=5;
-    if(operations>10000) score=6;
-    if(operations>14000) score=7;
-    if(operations>18000) score=8;
-    if(operations>23000) score=9;
-    if(operations>30000) score=10;
-
-    document.getElementById("timer").innerHTML="Finito";
-    document.getElementById("bar").style.width="100%";
-
-    document.getElementById("score").innerHTML=
-    "Operazioni: "+operations+
-    "<br><br>Score CPU: <b>"+score+"/10</b>";
-}
-
-function startTest(){
-
-    operations=0;
-
-    document.getElementById("score").innerHTML="";
-    document.getElementById("bar").style.width="0%";
-
-    endTime=new Date().getTime()+60000;
-
-    loop();
-}
-
-</script>
-
+        // Fai partire il test
+        requestAnimationFrame(update);
+    </script>
 </body>
 </html>
