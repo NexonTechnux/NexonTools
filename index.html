@@ -3,110 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GPU Stress Test - iPhone 4</title>
+    <title>ULTRA GPU Stress Test - "Fortnite Mobile" Mode</title>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: #111;
-            overflow: hidden;
-            color: #fff;
-            font-family: sans-serif;
-        }
-
-        #info {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 1000;
-            background: rgba(0,0,0,0.7);
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 14px;
-            pointer-events: none;
-        }
-
-        /* La pallina: un incubo per le vecchie GPU a causa di box-shadow e gradienti */
-        .ball {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: radial-gradient(circle, #ff0055, #770022);
-            
-            /* Il vero carico: le ombre pesanti forzano la GPU al "pixel blending" continuo */
-            box-shadow: 0 0 15px 5px rgba(255, 0, 85, 0.8);
-            opacity: 0.9;
-
-            /* Forza l'accelerazione hardware (sperando che l'A4 la regga senza crashare) */
-            -webkit-transform: translate3d(0,0,0);
-            transform: translate3d(0,0,0);
+        body, html { margin: 0; padding: 0; background: #000; overflow: hidden; width: 100%; height: 100%; }
+        #canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        #overlay {
+            position: absolute; top: 10px; left: 10px; z-index: 10;
+            background: rgba(255, 0, 0, 0.8); color: white; padding: 12px;
+            font-family: monospace; font-size: 14px; border: 2px solid white;
         }
     </style>
 </head>
 <body>
 
-    <div id="info">
-        <strong>GPU Stress Test</strong><br>
-        Palline: <span id="count">0</span><br>
-        <small>iPhone 4 Hardware Killer</small>
+    <div id="overlay">
+        <strong>⚠️ CRITICAL OVERLOAD ⚠️</strong><br>
+        Modalità: Grafica Ultra (Epic)<br>
+        Particelle: <span id="count">0</span><br>
+        Rendering: Multi-layer Blending
     </div>
 
-    <script>
-        const BALL_COUNT = 150; // Numero di palline. Se l'iPhone 4 crasha, abbassa a 80.
-        const balls = [];
-        const screenWidth = window.innerWidth;
-        const screenHeight = window.innerHeight;
+    <canvas id="canvas"></canvas>
 
-        // Inizializza il contatore visivo
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Adatta il canvas alla risoluzione nativa (Retina dell'iPhone 4 = 640x960)
+        // Più pixel ci sono, più la GPU collassa
+        const width = canvas.width = window.innerWidth;
+        const height = canvas.height = window.innerHeight;
+
+        // Portiamo il numero di oggetti a livelli folli per l'hardware del 2010
+        const BALL_COUNT = 800; 
         document.getElementById('count').innerText = BALL_COUNT;
 
-        // Creazione delle palline nel DOM
+        const balls = [];
         for (let i = 0; i < BALL_COUNT; i++) {
-            const el = document.createElement('div');
-            el.className = 'ball';
-            document.body.appendChild(el);
-
             balls.push({
-                element: el,
-                x: Math.random() * (screenWidth - 30),
-                y: Math.random() * (screenHeight - 30),
-                vx: (Math.random() - 0.5) * 8, // Velocità X
-                vy: (Math.random() - 0.5) * 8  // Velocità Y
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 12,
+                vy: (Math.random() - 0.5) * 12,
+                radius: Math.random() * 40 + 20, // Palline giganti = più pixel da calcolare
+                hue: Math.random() * 360
             });
         }
 
-        // Loop di animazione (usa requestAnimationFrame, supportato da iOS 6+)
-        function update() {
+        function draw() {
+            // TRUCCO 1: "Destination-out" forza la GPU a ricalcolare la trasparenza di tutta la scacchiera video precedente
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, width, height);
+
+            // TRUCCO 2: Cambiamo continuamente il metodo di composizione globale (Blend Mode)
+            // Questo disattiva qualunque ottimizzazione di caching della GPU PowerVR
+            ctx.globalCompositeOperation = "screen";
+
             for (let i = 0; i < BALL_COUNT; i++) {
                 const b = balls[i];
 
-                // Aggiorna posizione
                 b.x += b.vx;
                 b.y += b.vy;
 
-                // Rimbalzo pareti laterali
-                if (b.x <= 0 || b.x >= screenWidth - 30) {
-                    b.vx *= -1;
-                    b.x = b.x <= 0 ? 0 : screenWidth - 30;
-                }
+                if (b.x - b.radius < 0 || b.x + b.radius > width) b.vx *= -1;
+                if (b.y - b.radius < 0 || b.y + b.radius > height) b.vy *= -1;
 
-                // Rimbalzo soffitto/pavimento
-                if (b.y <= 0 || b.y >= screenHeight - 30) {
-                    b.vy *= -1;
-                    b.y = b.y <= 0 ? 0 : screenHeight - 30;
-                }
+                // TRUCCO 3: Creazione di un gradiente radiale dinamico PER OGNI SINGOLA PALLINA ad ogni frame
+                // Questo satura istantaneamente la banda della memoria video (VRAM dell'iPhone 4)
+                const gradient = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.radius);
+                gradient.addColorStop(0, 'hsla(' + b.hue + ', 100%, 70%, 1)');
+                gradient.addColorStop(0.5, 'hsla(' + ((b.hue + 120) % 360) + ', 100%, 50%, 0.5)');
+                gradient.addColorStop(1, 'rgba(0,0,0,0)');
 
-                // Applica il movimento usando translate3d per toccare la GPU
-                b.element.style.webkitTransform = `translate3d(${b.x}px, ${b.y}px, 0)`;
-                b.element.style.transform = `translate3d(${b.x}px, ${b.y}px, 0)`;
+                ctx.fillStyle = gradient;
+                
+                // Disegna la geometria
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // TRUCCO 4: Disegna anche un cerchio di luce ad alta sfocatura sopra ogni pallina
+                // Doppia passata di calcolo sullo stesso pixel (Overdraw estremo)
+                ctx.shadowBlur = 30;
+                ctx.shadowColor = 'hsl(' + b.hue + ', 100%, 50%)';
             }
 
-            requestAnimationFrame(update);
+            // Forza il ciclo continuo alla massima velocità possibile
+            requestAnimationFrame(draw);
         }
 
-        // Fai partire il test
-        requestAnimationFrame(update);
+        // Avvia il massacro hardware
+        requestAnimationFrame(draw);
     </script>
 </body>
 </html>
