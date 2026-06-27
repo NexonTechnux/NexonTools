@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>CPU Stress Test (1 minuto)</title>
+
+<style>
+body{
+    font-family:Arial;
+    background:#222;
+    color:white;
+    text-align:center;
+    margin-top:40px;
+}
+
+button{
+    font-size:22px;
+    padding:15px 40px;
+}
+
+#progress{
+    width:300px;
+    height:25px;
+    border:1px solid white;
+    margin:20px auto;
+}
+
+#bar{
+    width:0%;
+    height:100%;
+    background:#00ff00;
+}
+
+#timer{
+    font-size:28px;
+}
+
+#score{
+    font-size:40px;
+    margin-top:20px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>CPU Stress Test</h1>
+
+<button onclick="startTest()">Avvia Test (60 secondi)</button>
+
+<div id="timer">60</div>
+
+<div id="progress">
+    <div id="bar"></div>
+</div>
+
+<div id="score"></div>
+
+<script>
+
+var operations = 0;
+var endTime = 0;
+
+function heavyWork(){
+
+    var x = Math.random();
+
+    for(var i=0;i<5000;i++){
+        x=Math.sin(x);
+        x=Math.cos(x);
+        x=Math.sqrt(Math.abs(x));
+        x=Math.tan(x);
+    }
+
+    operations++;
+}
+
+function loop(){
+
+    if(new Date().getTime()>=endTime){
+
+        finish();
+        return;
+    }
+
+    heavyWork();
+
+    var remain=Math.ceil((endTime-new Date().getTime())/1000);
+
+    document.getElementById("timer").innerHTML=remain;
+
+    var done=100-((endTime-new Date().getTime())/600);
+
+    if(done<0) done=0;
+    if(done>100) done=100;
+
+    document.getElementById("bar").style.width=done+"%";
+
+    setTimeout(loop,0);
+}
+
+function finish(){
+
+    var score=1;
+
+    if(operations>1000) score=2;
+    if(operations>2000) score=3;
+    if(operations>4000) score=4;
+    if(operations>7000) score=5;
+    if(operations>10000) score=6;
+    if(operations>14000) score=7;
+    if(operations>18000) score=8;
+    if(operations>23000) score=9;
+    if(operations>30000) score=10;
+
+    document.getElementById("timer").innerHTML="Finito";
+    document.getElementById("bar").style.width="100%";
+
+    document.getElementById("score").innerHTML=
+    "Operazioni: "+operations+
+    "<br><br>Score CPU: <b>"+score+"/10</b>";
+}
+
+function startTest(){
+
+    operations=0;
+
+    document.getElementById("score").innerHTML="";
+    document.getElementById("bar").style.width="0%";
+
+    endTime=new Date().getTime()+60000;
+
+    loop();
+}
+
+</script>
+
+</body>
+</html>
